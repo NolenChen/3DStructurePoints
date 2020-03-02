@@ -7,5 +7,5 @@ We evaluate the method with extensive experiments and show state-of-the-art accu
 
 
 <div align="center">
-<img src="https://drive.google.com/file/d/1CKgbjmURnsOvjgu_MjkApa-bvizMUisM/view?usp=sharing" width="70%" height="70%"><br><br>
+<img src="https://github.com/NolenChen/3DStructurePoints/blob/master/figs/teaser.png" width="70%" height="70%"><br><br>
 </div>

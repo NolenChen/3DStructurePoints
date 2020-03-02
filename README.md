@@ -2,10 +2,56 @@
 
 
 ## Description
-Learning structures of 3D shapes is a fundamental problem in the field of computer graphics and geometry processing. We present a simple yet interpretable unsupervised method for learning a new structural representation in the form of 3D structure points. The 3D structure points produced by our method encode the shape structure intrinsically and exhibit semantic consistency across all the shape instances within the same category, which is a challenging goal not fully addressed by previous methods. Specifically, our method takes a 3D point cloud as input and encodes it as a set of local features. The local features are then passed through a novel point integration module to produce a set of 3D structure points. Chamfer distance is used as reconstruction loss to ensure the structure points lie close to the input point cloud. 
-We evaluate the method with extensive experiments and show state-of-the-art accuracy on both semantic shape correspondence and segmentation label transfer tasks. Moreover, the PCA based shape embedding built upon consistent structure points demonstrates good performance in preserving the shape structures.
-
+This repository contains the code for our cvpr 2020 paper: Unsupervised Learning of Intrinsic Structural Representation Points
 
 <div align="center">
 <img src="https://github.com/NolenChen/3DStructurePoints/blob/master/figs/teaser.png" width="70%" height="70%"><br><br>
 </div>
+
+
+## Environment setup
+
+Current Code is tested on ubuntu16.04, python3.6, torch 1.1.1 and torchvision 0.3.0. 
+We use a [pytorch version of pointnet++](https://github.com/erikwijmans/Pointnet2_PyTorch) in our pipeline.
+```
+pip install -r requirements.txt
+cd pointnet2
+python setup.py build_ext --inplace
+```
+
+
+## Dataset
+
+The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://drive.google.com/file/d/1MkUcFF4gbfhQLssPNd_MV9afOOar-Wxn/view?usp=sharing).
+
+
+
+## Train
+
+```
+python train/train_structure_points.py -data_dir PATH_TO_TRAINING_DATA -num_structure_points 512 -category plane -log_dir PATH_TO_LOG
+```
+* -data_dir: path to the preprocessed training data.
+* -num_structure_points: number of structure points
+* -category: category to train on
+* -log_dir: path to log dir
+
+The trained model will be saved in PATH_TO_LOG/checkpoints/model
+
+## Test
+
+```
+python test/test_structure_points.py -data_dir ./demo_data
+```
+
+* -data_dir: path to the testing data.
+
+
+Please cite our paper if you find it useful in your research:
+
+```
+
+```
+
+
+

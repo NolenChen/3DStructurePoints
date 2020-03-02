@@ -41,9 +41,9 @@ The trained model will be saved in PATH_TO_LOG/checkpoints/model
 ## Test
 
 ```
-python test/test_structure_points.py -data_dir ./demo_data
+python test/test_structure_points.py -data_dir ./demo_data -model_dir PATH_TO_TRAINED_MODEL
 ```
-
+* -model_dir: path to trained model
 * -data_dir: path to the testing data.
 
 

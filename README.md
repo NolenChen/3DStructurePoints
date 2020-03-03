@@ -29,9 +29,10 @@ The script for preprocessing the testing data will come soon.
 ## Train
 
 ```
-python train/train_structure_points.py -data_dir PATH_TO_TRAINING_DATA -num_structure_points 16 -category plane -log_dir PATH_TO_LOG
+cd train
+python train_structure_points.py -data_dir PATH_TO_TRAINING_DATA -num_structure_points 16 -category plane -log_dir PATH_TO_LOG
 ```
-* -data_dir: path to the preprocessed training data.
+* -data_dir: path to the preprocessed training data
 * -num_structure_points: number of structure points
 * -category: category to train on
 * -log_dir: path to log dir
@@ -41,14 +42,15 @@ The trained model will be saved in PATH_TO_LOG/checkpoints/model
 ## Test
 
 ```
-python test/test_structure_points.py -data_dir ./demo_data/plane -model_fname PATH_TO_TRAINED_MODEL -num_structure_points 16 -output_dir OUTPUT_PATH
+cd test
+python test_structure_points.py -data_dir ../demo_data/plane -model_fname PATH_TO_TRAINED_MODEL -num_structure_points 16 -output_dir OUTPUT_PATH
 ```
 * -model_fname: path to trained model
-* -data_dir: path to the testing data.
+* -data_dir: path to the testing data
 * -output_dir: output path.
-* -num_structure_points: number of structure points, should be the same with training stage.
+* -num_structure_points: number of structure points, should be the same with training stage
 
-The structure point will be outputed in off format, corresponding structure points will have same colors.
+The structure point will be outputed in off format, corresponding structure points will have same colors
 
 
 ## Citation

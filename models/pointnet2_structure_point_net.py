@@ -22,7 +22,7 @@ class ComputeLoss3d(nn.Module):
         self.consistent_loss = None
         self.cd_loss = None
 
-    def forward(self, gt_points, structure_points, transed_gt_points, transed_structure_points=None, trans_func_list=None):
+    def forward(self, gt_points, structure_points, transed_gt_points=None, transed_structure_points=None, trans_func_list=None):
 
         gt_points = gt_points.cuda()
         structure_points = structure_points.cuda()
@@ -52,7 +52,7 @@ class ComputeLoss3d(nn.Module):
                 else:
                     self.consistent_loss = self.consistent_loss + tmp_consistent_loss
             self.consistent_loss = self.consistent_loss / trans_num * 1000
-            self.loss = self.consistent_loss
+
 
         self.cd_loss = self.cd_loss / (trans_num + 1)
 

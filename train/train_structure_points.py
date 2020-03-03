@@ -178,13 +178,6 @@ def train(cmd_args):
         checkpoint_util.save_checkpoint(filename=fname, model_3d=model, optimizer=optimizer, iters=iters, epoch=epoch_i)
 
 
-def gen_name_from_args(cmd_args):
-    name = '{0}_num_spts{1}'.format(cmd_args.category, cmd_args.num_structure_points)
-    if cmd_args.num_of_transform > 0:
-        name = name + 'trans{0}'.format(cmd_args.num_of_transform)
-
-    return name
-
 
 def parse_args():
     parser = argparse.ArgumentParser(
@@ -238,9 +231,8 @@ def parse_args():
     parser.add_argument(
         "-max_epochs", type=int, default=200, help="Number of epochs to train for"
     )
-    log_name = gen_name_from_args(parser.parse_args())
     parser.add_argument(
-        "-log_dir", type=str, default="../logs/{0}".format(log_name), help="Root of the log"
+        "-log_dir", type=str, default="", help="Root of the log"
     )
     return parser.parse_args()
 

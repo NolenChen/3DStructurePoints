@@ -179,7 +179,10 @@ def train(cmd_args):
 
 
 def gen_name_from_args(cmd_args):
-    name = 'bhcp_{0}_num_spts{1}_trans{2}'.format(cmd_args.category, cmd_args.num_structure_points, cmd_args.num_of_transform)
+    name = '{0}_num_spts{1}'.format(cmd_args.category, cmd_args.num_structure_points)
+    if cmd_args.num_of_transform > 0:
+        name = name + 'trans{0}'.format(cmd_args.num_of_transform)
+
     return name
 
 
@@ -230,7 +233,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-data_dir", type=str, default="/userhome/35/nlchen/datasets/shapenet_for_bhcp/", help="Root of the dataset"
+        "-data_dir", type=str, default="", help="Root of the training data"
     )
     parser.add_argument(
         "-max_epochs", type=int, default=200, help="Number of epochs to train for"

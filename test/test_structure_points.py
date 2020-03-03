@@ -40,14 +40,18 @@ def main(args):
     fnames = glob.glob(os.path.join(args.data_dir, '*.off'))
 
     for fname in fnames:
-        pts = point_cloud_utils.read_points_off(fname)
+     
+        fname = os.path.basename(fname)
+        pts = point_cloud_utils.read_points_off(os.path.join(args.data_dir,fname))
 
         batch_pts = torch.from_numpy(pts)[None, :, :].cuda()
         structure_points = model(batch_pts)
 
         structure_points = structure_points[0].cpu().detach().numpy()
         outfname = os.path.join(args.output_dir, fname[:-4] + '_stpts.off')
-        point_cloud_utils.write_points_off(outfname, structure_points)
+        point_cloud_utils.write_points_off(outfname, structure_points, COLOR_LIST[:structure_points.shape[0], :])
+
+    print('output saved to {0}'.format(args.output_dir))
 
 
 if __name__ == "__main__":

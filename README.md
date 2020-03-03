@@ -11,7 +11,7 @@ This repository contains the code for our cvpr 2020 paper: Unsupervised Learning
 
 ## Environment setup
 
-Current Code is tested on ubuntu16.04, python3.6, torch 1.1.1 and torchvision 0.3.0. 
+Current Code is tested on ubuntu16.04 with cuda9, python3.6, torch 1.1.0 and torchvision 0.3.0. 
 We use a [pytorch version of pointnet++](https://github.com/erikwijmans/Pointnet2_PyTorch) in our pipeline.
 ```
 pip install -r requirements.txt
@@ -41,12 +41,14 @@ The trained model will be saved in PATH_TO_LOG/checkpoints/model
 ## Test
 
 ```
-python test/test_structure_points.py -data_dir ./demo_data/plane -model_dir PATH_TO_TRAINED_MODEL -num_structure_points 16 -output_dir OUTPUT_PATH
+python test/test_structure_points.py -data_dir ./demo_data/plane -model_fname PATH_TO_TRAINED_MODEL -num_structure_points 16 -output_dir OUTPUT_PATH
 ```
-* -model_dir: path to trained model
+* -model_fname: path to trained model
 * -data_dir: path to the testing data.
 * -output_dir: output path.
 * -num_structure_points: number of structure points, should be the same with training stage.
+
+The structure point will be outputed in off format, corresponding structure points will have same colors.
 
 
 ## Citation

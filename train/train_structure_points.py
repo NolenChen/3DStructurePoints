@@ -185,7 +185,7 @@ def gen_name_from_args(cmd_args):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Arguments for cls training",
+        description="Arguments",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
     parser.add_argument(

@@ -8,7 +8,7 @@ This repository contains the code for our cvpr 2020 paper: [Unsupervised Learnin
 <img src="https://github.com/NolenChen/3DStructurePoints/blob/master/figs/teaser.png" width="70%" height="70%"><br><br>
 </div>
 
-
+ 
 ## Environment setup
 
 Current Code is tested on ubuntu16.04 with cuda9, python3.6, torch 1.1.0 and torchvision 0.3.0. 

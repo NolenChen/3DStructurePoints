@@ -2,7 +2,7 @@
 
 
 ## Description
-This repository contains the code for our cvpr 2020 paper: Unsupervised Learning of Intrinsic Structural Representation Points
+This repository contains the code for our cvpr 2020 paper: [Unsupervised Learning of Intrinsic Structural Representation Points](https://arxiv.org/abs/2003.01661)
 
 <div align="center">
 <img src="https://github.com/NolenChen/3DStructurePoints/blob/master/figs/teaser.png" width="70%" height="70%"><br><br>

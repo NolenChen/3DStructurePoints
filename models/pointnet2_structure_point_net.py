@@ -81,7 +81,7 @@ class Pointnet2StructurePointNet(nn.Module):
 
         self.SA_modules.append(
             PointnetSAModuleMSG(
-                npoint=1024,
+                npoint=512,
                 radii=[0.1, 0.2, 0.4],
                 nsamples=[16, 32, 128],
                 mlps=[
@@ -96,7 +96,7 @@ class Pointnet2StructurePointNet(nn.Module):
         input_channels = 64 + 128 + 128
         self.SA_modules.append(
             PointnetSAModuleMSG(
-                npoint=512,
+                npoint=128,
                 radii=[0.2, 0.4, 0.8],
                 nsamples=[32, 64, 128],
                 mlps=[

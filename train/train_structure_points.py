@@ -30,8 +30,8 @@ torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
 
 
-def train_one_epoch(model, optimizer, data_loader, lr_scheduler, bnm_scheduler, current_iter, criterions, num_of_trans,
-                    num_inpts):
+def train_one_epoch(model, optimizer, data_loader, lr_scheduler, bnm_scheduler,
+                    current_iter, criterions, num_of_trans, num_inputs):
     model.train()
     ave_loss = 0
     ave_cd_loss = 0
@@ -59,15 +59,12 @@ def train_one_epoch(model, optimizer, data_loader, lr_scheduler, bnm_scheduler, 
 
         batch_points_all = batch_points_all.cuda()
 
-        if num_inpts > 0:
-            batch_points_all = point_cloud_utils.farthest_pts_sampling_tensor(batch_points_all, num_inpts)
+        if num_inputs > 0:
+            batch_points_all = point_cloud_utils.farthest_pts_sampling_tensor(batch_points_all, num_inputs)
 
-        # print(batch_points_all.shape)
         structure_points_all = model(batch_points_all)
-
         structure_points_all = structure_points_all.view(num_of_trans + 1, batch_size, structure_points_all.shape[1],
                                                          structure_points_all.shape[2])
-
         structure_points = structure_points_all[0]
         if num_of_trans > 0:
             transed_batch_points = transed_batch_points.view(num_of_trans, batch_size, transed_batch_points.shape[1],
@@ -90,7 +87,7 @@ def train_one_epoch(model, optimizer, data_loader, lr_scheduler, bnm_scheduler, 
         if consistent_loss is not None:
             print("\rbatch {0} current_loss {1}, cd_loss {2}, consistent_loss {3}".format(count, ("%.8f" % loss.item()),
                                                                                           ("%.8f" % cd_loss.item()), (
-                                                                                                      "%.8f" % consistent_loss.item())),
+                                                                                                  "%.8f" % consistent_loss.item())),
                   end=" ")
         else:
             print("\rbatch {0} current_loss {1}, cd_loss {2}".format(count, ("%.8f" % loss.item()),
@@ -143,6 +140,7 @@ def train(cmd_args):
     )
     model = Pointnet2StructurePointNet(num_structure_points=cmd_args.num_structure_points, input_channels=0,
                                        use_xyz=True)
+    print(model)
     model.cuda()
     optimizer = optim.Adam(
         model.parameters(), lr=cmd_args.lr, weight_decay=cmd_args.weight_decay
@@ -185,13 +183,13 @@ def train(cmd_args):
                                                                                   lr_scheduler, bnm_scheduler, iters,
                                                                                   criterions,
                                                                                   num_of_trans=cmd_args.num_of_transform,
-                                                                                  num_inpts=cmd_args.num_inpts)
+                                                                                  num_inputs=cmd_args.num_inputs)
         log.write(
             '\nave_train_loss:{0}, cd_loss:{1}, consis_loss:{2}'.format(("%.8f" % train_loss), ("%.8f" % train_cd_loss),
                                                                         ("%.8f" % train_consistent_loss)))
 
         if cmd_args.checkpoint_save_step != -1 and (epoch_i + 1) % cmd_args.checkpoint_save_step is 0:
-            fname = os.path.join(checkpoints_dir, 'checkpoint_{}'.format(epoch_i))
+            fname = os.path.join(checkpoints_dir, 'checkpoint_{}'.format(epoch_i+1))
             checkpoint_util.save_checkpoint(filename=fname, model_3d=model, optimizer=optimizer, iters=iters,
                                             epoch=epoch_i)
 
@@ -224,7 +222,7 @@ def parse_args():
     parser.add_argument(
         "-checkpoint_save_step", type=int, default=10, help="Step for saving Checkpoint"
     )
-    parser.add_argument("-batch_size", type=int, default=3, help="Batch size")
+    parser.add_argument("-batch_size", type=int, default=24, help="Batch size")
     parser.add_argument(
         "-checkpoint", type=str, default=None
         , help="Checkpoint to start from"
@@ -235,7 +233,7 @@ def parse_args():
     )
 
     parser.add_argument(
-        "-num_inpts", type=int, default=2048, help="sample points from initial point cloud"
+        "-num_inputs", type=int, default=2048, help="sample points from initial point cloud"
     )
 
     parser.add_argument(
@@ -261,4 +259,5 @@ def parse_args():
 if __name__ == "__main__":
     os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     args = parse_args()
+    print(args)
     train(cmd_args=args)

@@ -7,12 +7,12 @@ from __future__ import (
 )
 import torch
 import torch.nn as nn
-import etw_pytorch_utils as pt_utils
 from pointnet2.utils.pointnet2_modules import PointnetSAModuleMSG
 from models import chamfer_distance
+from models.base import BaseModel
 
 
-class ComputeLoss3d(nn.Module):
+class ComputeLoss3d(BaseModel):
     def __init__(self):
         super(ComputeLoss3d, self).__init__()
 
@@ -70,7 +70,7 @@ class ComputeLoss3d(nn.Module):
         return self.consistent_loss
 
 
-class IntegrationLayer(nn.Module):
+class Conv1dProbLayer(BaseModel):
     def __init__(self, in_channels, out_channels, out=False, kernel_size=1, dropout=0.2):
         super().__init__()
         self.out = out
@@ -85,14 +85,13 @@ class IntegrationLayer(nn.Module):
     def forward(self, x):
         x = self.dropout_conv_bn_layer(x)
         if self.out:
-            x = self.relu(x)
-        else:
             x = self.softmax(x)
+        else:
+            x = self.relu(x)
         return x
 
 
-class Pointnet2StructurePointNet(nn.Module):
-
+class Pointnet2StructurePointNet(BaseModel):
     def __init__(self, num_structure_points, input_channels=3, use_xyz=True):
         super(Pointnet2StructurePointNet, self).__init__()
         self.point_dim = 3
@@ -132,58 +131,22 @@ class Pointnet2StructurePointNet(nn.Module):
 
         conv1d_stpts_prob_modules = []
         if num_structure_points <= 128 + 256 + 256:
-            # conv1d_stpts_prob_modules.append(
-            #     IntegrationLayer(in_channels=128 + 256 + 256, out_channels=512))
-            conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-            conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=128 + 256 + 256, out_channels=512, kernel_size=1))
-            conv1d_stpts_prob_modules.append(nn.BatchNorm1d(512))
-            conv1d_stpts_prob_modules.append(nn.ReLU())
+            conv1d_stpts_prob_modules.append(Conv1dProbLayer(128 + 256 + 256, 512))
             in_channels = 512
             while in_channels >= self.num_structure_points * 2:
                 out_channels = int(in_channels / 2)
-                # conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, out_channels))
-                conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-                conv1d_stpts_prob_modules.append(
-                    nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
-                conv1d_stpts_prob_modules.append(nn.BatchNorm1d(out_channels))
-                conv1d_stpts_prob_modules.append(nn.ReLU())
+                conv1d_stpts_prob_modules.append(Conv1dProbLayer(in_channels, out_channels))
                 in_channels = out_channels
+            conv1d_stpts_prob_modules.append(Conv1dProbLayer(in_channels, self.num_structure_points, True))
 
-            conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, self.num_structure_points, out=True))
-            # conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-            # conv1d_stpts_prob_modules.append(
-            #     nn.Conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
-            #
-            # conv1d_stpts_prob_modules.append(nn.BatchNorm1d(self.num_structure_points))
-            # conv1d_stpts_prob_modules.append(nn.Softmax(dim=2))
         else:
-
-            # conv1d_stpts_prob_modules.append(
-            #     IntegrationLayer(in_channels=128 + 256 + 256, out_channels=1024, kernel_size=1))
-            conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-            conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=128 + 256 + 256, out_channels=1024, kernel_size=1))
-            conv1d_stpts_prob_modules.append(nn.BatchNorm1d(1024))
-            conv1d_stpts_prob_modules.append(nn.ReLU())
-
             in_channels = 1024
-            while in_channels <= self.num_structure_points / 2:
+            conv1d_stpts_prob_modules.append(Conv1dProbLayer(128 + 256 + 256, 1024))
+            while in_channels < self.num_structure_points / 2:  # change <= to <
                 out_channels = int(in_channels * 2)
-                # conv1d_stpts_prob_modules.append(
-                #     IntegrationLayer(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
-                conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-                conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
-                conv1d_stpts_prob_modules.append(nn.BatchNorm1d(out_channels))
-                conv1d_stpts_prob_modules.append(nn.ReLU())
+                conv1d_stpts_prob_modules.append(Conv1dProbLayer(in_channels, out_channels))
                 in_channels = out_channels
-
-            # conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, self.num_structure_points, True))
-            conv1d_stpts_prob_modules.append(nn.dropout(0.2))
-            conv1d_stpts_prob_modules.append(
-                nn.conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
-
-            conv1d_stpts_prob_modules.append(nn.batchnorm1d(self.num_structure_points))
-            conv1d_stpts_prob_modules.append(nn.Softmax(dim=2))
-
+            conv1d_stpts_prob_modules.append(Conv1dProbLayer(in_channels, self.num_structure_points, True))
         self.conv1d_stpts_prob = nn.Sequential(*conv1d_stpts_prob_modules)
 
     def _break_up_pc(self, pc):
@@ -204,19 +167,14 @@ class Pointnet2StructurePointNet(nn.Module):
             xyz, features = module(xyz, features)
 
         self.stpts_prob_map = self.conv1d_stpts_prob(features)
-
         weighted_xyz = torch.sum(self.stpts_prob_map[:, :, :, None] * xyz[:, None, :, :], dim=2)
+        # print("prob:{},xyz:{},weighted_xyz:{},features:{}".format(self.stpts_prob_map.shape,
+        #                                               xyz.shape,
+        #                                               weighted_xyz.shape,
+        #                                               features.shape))
 
         if return_weighted_feature:
             weighted_features = torch.sum(self.stpts_prob_map[:, None, :, :] * features[:, :, None, :], dim=3)
             return weighted_xyz, weighted_features
         else:
-
             return weighted_xyz
-
-
-if __name__ == "__main__":
-    pointclouds = torch.rand(10, 1000, 3).cuda()
-    model = Pointnet2StructurePointNet(15).cuda()
-    output = model(pointclouds)
-    print(output.shape)

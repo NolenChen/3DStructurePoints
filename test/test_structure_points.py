@@ -6,6 +6,7 @@ from __future__ import (
     unicode_literals,
 )
 import sys
+
 sys.path.append("..")
 import torch
 import os
@@ -17,6 +18,7 @@ import numpy as np
 import random
 import glob
 
+
 def create_color_list(num):
     colors = np.ndarray(shape=(num, 3))
     random.seed(30)
@@ -25,11 +27,12 @@ def create_color_list(num):
         colors[i, 1] = random.randint(0, 255)
         colors[i, 2] = random.randint(0, 255)
     return colors
+
+
 COLOR_LIST = create_color_list(5000)
 
 
 def main(args):
-
     model = Pointnet2StructurePointNet(num_structure_points=args.num_structure_points, input_channels=0, use_xyz=True)
     model.cuda()
     checkpoint_util.load_checkpoint(model_3d=model, filename=args.model_fname)
@@ -40,9 +43,8 @@ def main(args):
     fnames = glob.glob(os.path.join(args.data_dir, '*.off'))
 
     for fname in fnames:
-     
         fname = os.path.basename(fname)
-        pts = point_cloud_utils.read_points_off(os.path.join(args.data_dir,fname))
+        pts = point_cloud_utils.read_points_off(os.path.join(args.data_dir, fname))
 
         batch_pts = torch.from_numpy(pts)[None, :, :].cuda()
         structure_points = model(batch_pts)
@@ -55,7 +57,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-
+    print("begin")
+    os.environ['CUDA_VISIBLE_DEVICES'] = '1'
     parser = argparse.ArgumentParser(
         description="Arguments",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
@@ -74,16 +77,3 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
     main(args)
-
-
-
-
-
-
-
-
-
-
-
-
-

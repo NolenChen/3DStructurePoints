@@ -6,6 +6,7 @@ from __future__ import (
     unicode_literals,
 )
 import sys
+
 sys.path.append("..")
 import torch
 import numpy as np
@@ -34,13 +35,13 @@ def angle_axis_tensor(angle, axis):
 
     # yapf: disable
     cross_prod_mat = torch.Tensor([[0.0, -u[2], u[1]],
-                                [u[2], 0.0, -u[0]],
-                                [-u[1], u[0], 0.0]]).type(torch.FloatTensor)
+                                   [u[2], 0.0, -u[0]],
+                                   [-u[1], u[0], 0.0]]).type(torch.FloatTensor)
 
     R = cosval * torch.eye(3).type(torch.FloatTensor) + sinval * cross_prod_mat + (1.0 - cosval) * torch.ger(u, u)
 
-
     return R
+
 
 def angle_axis(angle, axis):
     # type: (float, np.ndarray) -> float
@@ -63,8 +64,8 @@ def angle_axis(angle, axis):
 
     # yapf: disable
     cross_prod_mat = np.array([[0.0, -u[2], u[1]],
-                                [u[2], 0.0, -u[0]],
-                                [-u[1], u[0], 0.0]])
+                               [u[2], 0.0, -u[0]],
+                               [-u[1], u[0], 0.0]])
 
     R = torch.from_numpy(
         cosval * np.eye(3)
@@ -145,8 +146,8 @@ class PointcloudJitter(object):
     def __call__(self, points):
         jittered_data = (
             points.new(points.size(0), 3)
-            .normal_(mean=0.0, std=self.std)
-            .clamp_(-self.clip, self.clip)
+                .normal_(mean=0.0, std=self.std)
+                .clamp_(-self.clip, self.clip)
         )
         points[:, 0:3] += jittered_data
         return points
@@ -154,11 +155,9 @@ class PointcloudJitter(object):
 
 class PointcloudNormalize(object):
     def __init__(self, max_size=1.0):
-
         self.max_size = max_size
 
     def __call__(self, points):
-
         points_max, _ = torch.max(points, dim=0)
         points_min, _ = torch.min(points, dim=0)
         points_center = (points_max + points_min) / 2
@@ -167,10 +166,10 @@ class PointcloudNormalize(object):
         points = points / max_radius * self.max_size / 2.0
         return points
 
+
 class PointcloudRandomPermutation(object):
 
     def __call__(self, points):
-
         num = points.shape[0]
         idxs = torch.randperm(num).type(torch.LongTensor)
         points = torch.index_select(points, 0, idxs).clone()
@@ -208,18 +207,12 @@ class PointcloudRandomInputDropout(object):
         return torch.from_numpy(pc).float()
 
 
-
-
-
-
-
 class PointcloudTranslate(object):
     def __init__(self, translation=np.array([0.0, 0.1, 0.0])):
         '''
         :param translation: pytorch tensor, translation vector(x,y,z)
         '''
         self.translation = torch.from_numpy(translation)
-
 
     def __call__(self, points):
         '''
@@ -242,7 +235,6 @@ class PointcloudScale(object):
         self.scaler = scaler
 
     def __call__(self, points):
-
         respoints = points * self.scaler
         return respoints
 
@@ -254,7 +246,6 @@ class PointcloudRotate(object):
         self.rotation_matrix_t = angle_axis(self.angle_in_degree, self.axis).t()
 
     def __call__(self, points):
-
         '''
             :param points: ... , num_of_points, 3
             :return: points after rotate
@@ -267,8 +258,7 @@ class PointcloudRotate(object):
         return tpoints
 
 
-
-def GenPointcloudRandomTransformFunction(max_rot_angle=2*np.pi):
+def GenPointcloudRandomTransformFunction(max_rot_angle=2 * np.pi):
     scale_lo = 0.8
     scale_hi = 1.25
     scaler = np.random.uniform(scale_lo, scale_hi)
@@ -284,7 +274,7 @@ def GenPointcloudRandomTransformFunction(max_rot_angle=2*np.pi):
     return trans_func
 
 
-def AddTransformsToBatchPoints(points, num_of_trans, max_rot_angle=2*np.pi):
+def AddTransformsToBatchPoints(points, num_of_trans, max_rot_angle=2 * np.pi):
     '''
 
     :param points:bn, num_of_points, 3
@@ -324,11 +314,8 @@ class PointcloudRotateFuns(object):
         else:
             tmp_rot = self.rot_mats
 
-
         transed_poitns = torch.transpose(torch.matmul(tmp_rot, torch.transpose(points, 1, 2)), 1, 2)
         return transed_poitns
-
-
 
 
 def AddPCATransformsToBatchPoints(points, num_of_trans):
@@ -347,7 +334,7 @@ def AddPCATransformsToBatchPoints(points, num_of_trans):
             np.random.shuffle(tmp_idx)
             pca_axis = pca_axis_raw[tmp_idx, :]
             tmp_sign = np.random.randint(2, size=2)
-            tmp_sign[tmp_sign==0] = -1
+            tmp_sign[tmp_sign == 0] = -1
             pca_axis[0, :] = pca_axis[0, :] * tmp_sign[0]
             pca_axis[1, :] = pca_axis[1, :] * tmp_sign[1]
             pca_axis[2, :] = np.cross(pca_axis[0, :], pca_axis[1, :])
@@ -382,13 +369,4 @@ def AddPCATransformsToBatchPoints(points, num_of_trans):
         trans_func = PointcloudRotateFuns(rot_mats_all[ti, :, :, :])
         transfunc_list.append(trans_func)
 
-
     return trans_points_all, rot_mats_all, transfunc_list
-
-
-
-
-
-
-
-

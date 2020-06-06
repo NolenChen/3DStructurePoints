@@ -14,6 +14,7 @@ This repository contains the code for our cvpr 2020 paper: [Unsupervised Learnin
 Current Code is tested on ubuntu16.04 with cuda9, python3.6, torch 1.1.0 and torchvision 0.3.0. 
 We use a [pytorch version of pointnet++](https://github.com/erikwijmans/Pointnet2_PyTorch) in our pipeline.
 ```
+conda install pytorch==1.1.0 torchvision==0.3.0 cudatoolkit=10.0 -c pytorch
 pip install -r requirements.txt
 cd pointnet2
 python setup.py build_ext --inplace

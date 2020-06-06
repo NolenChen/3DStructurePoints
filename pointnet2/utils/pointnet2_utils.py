@@ -12,9 +12,7 @@ import etw_pytorch_utils as pt_utils
 import sys
 import numpy as np
 
-
 import builtins
-
 
 try:
     import pointnet2._ext as _ext
@@ -281,7 +279,6 @@ class BallQuery(Function):
 ball_query = BallQuery.apply
 
 
-
 class QueryAndGroupRRI(nn.Module):
     r"""
     Groups with a ball query of radius for rigious rotation invariant
@@ -295,7 +292,6 @@ class QueryAndGroupRRI(nn.Module):
     """
 
     def __init__(self, radius, nsample):
-        # type: (QueryAndGroupRRI, float, int, bool) -> None
         super(QueryAndGroupRRI, self).__init__()
         self.radius, self.nsample = radius, nsample
 
@@ -304,26 +300,31 @@ class QueryAndGroupRRI(nn.Module):
         xyz_trans = xyz.transpose(1, 2).contiguous()
         grouped_xyz = grouping_operation(xyz_trans, idx)  # (B, 3, npoint, nsample)
         new_xyz_reshaped = new_xyz.transpose(1, 2).unsqueeze(-1)
-        #grouped_xyz = grouped_xyz - new_xyz_reshaped
+        # grouped_xyz = grouped_xyz - new_xyz_reshaped
         diff_grouped2grouped = grouped_xyz[:, :, :, :, None] - grouped_xyz[:, :, :, None, :]
         dis_grouped2grouped = torch.sqrt(torch.sum(diff_grouped2grouped * diff_grouped2grouped, dim=1))
         mean_dis_grouped2grouped = torch.mean(dis_grouped2grouped, dim=3)
         tip_idxs = torch.argmax(mean_dis_grouped2grouped, dim=2)
-        tip_idxs_viewed = tip_idxs[:, None, :].repeat(1, grouped_xyz.shape[1], 1).view(grouped_xyz.shape[0]*grouped_xyz.shape[1]*grouped_xyz.shape[2])
-        tip_pts = grouped_xyz.view(grouped_xyz.shape[0]*grouped_xyz.shape[1]*grouped_xyz.shape[2], grouped_xyz.shape[3])[range(tip_idxs_viewed.shape[0]), tip_idxs_viewed]
+        tip_idxs_viewed = tip_idxs[:, None, :].repeat(1, grouped_xyz.shape[1], 1).view(
+            grouped_xyz.shape[0] * grouped_xyz.shape[1] * grouped_xyz.shape[2])
+        tip_pts = \
+        grouped_xyz.view(grouped_xyz.shape[0] * grouped_xyz.shape[1] * grouped_xyz.shape[2], grouped_xyz.shape[3])[
+            range(tip_idxs_viewed.shape[0]), tip_idxs_viewed]
         tip_pts = tip_pts.view(grouped_xyz.shape[0], grouped_xyz.shape[1], grouped_xyz.shape[2])
 
-        grouped_proj_vec = torch.cross(torch.cross(new_xyz_reshaped.repeat(1, 1, 1, grouped_xyz.shape[3]), grouped_xyz, dim=1),
-                                       new_xyz_reshaped.repeat(1, 1, 1, grouped_xyz.shape[3]), dim=1)
+        grouped_proj_vec = torch.cross(
+            torch.cross(new_xyz_reshaped.repeat(1, 1, 1, grouped_xyz.shape[3]), grouped_xyz, dim=1),
+            new_xyz_reshaped.repeat(1, 1, 1, grouped_xyz.shape[3]), dim=1)
         grouped_proj_vec = grouped_proj_vec / torch.norm(grouped_proj_vec, dim=1)[:, None, :, :]
         new_r = torch.sqrt(torch.sum(new_xyz_reshaped * new_xyz_reshaped, dim=1))
         new_norm = new_xyz_reshaped / (new_r[:, None, :, :] + 1e-8)
 
-        tip_proj_vec = torch.cross(torch.cross(new_xyz_reshaped.squeeze(dim=3), tip_pts, dim=1), new_xyz_reshaped.squeeze(dim=3), dim=1)
+        tip_proj_vec = torch.cross(torch.cross(new_xyz_reshaped.squeeze(dim=3), tip_pts, dim=1),
+                                   new_xyz_reshaped.squeeze(dim=3), dim=1)
         tip_proj_vec = tip_proj_vec / torch.norm(tip_proj_vec, dim=1)[:, None, :]
-        grouped_cross_vec = torch.cross(grouped_proj_vec, tip_proj_vec[:, :, :, None].repeat(1, 1, 1, grouped_proj_vec.shape[3]), dim=1)
+        grouped_cross_vec = torch.cross(grouped_proj_vec,
+                                        tip_proj_vec[:, :, :, None].repeat(1, 1, 1, grouped_proj_vec.shape[3]), dim=1)
         grouped_proj_vec_sin = torch.sum(grouped_cross_vec * new_norm, dim=1)
-
 
         dis_grouped2grouped = torch.transpose(dis_grouped2grouped, 1, 2)
         dis_grouped2grouped_sort, _ = torch.sort(dis_grouped2grouped, dim=1)
@@ -343,7 +344,6 @@ class QueryAndGroupRRI(nn.Module):
             new_features = grouped_rri
 
         return new_features
-
 
     '''
     backup
@@ -399,7 +399,6 @@ class QueryAndGroupRRI(nn.Module):
 
         return new_features
     '''
-
 
 
 class QueryAndGroup(nn.Module):

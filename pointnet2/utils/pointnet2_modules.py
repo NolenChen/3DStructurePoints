@@ -50,8 +50,8 @@ class _PointnetSAModuleBase(nn.Module):
             pointnet2_utils.gather_operation(
                 xyz_flipped, pointnet2_utils.furthest_point_sample(xyz, self.npoint)
             )
-            .transpose(1, 2)
-            .contiguous()
+                .transpose(1, 2)
+                .contiguous()
             if self.npoint is not None
             else None
         )
@@ -118,8 +118,6 @@ class PointnetSAModuleMSG(_PointnetSAModuleBase):
             self.mlps.append(pt_utils.SharedMLP(mlp_spec, bn=bn))
 
 
-
-
 class PointnetSAModuleMSGRRI(_PointnetSAModuleBase):
     r"""Pointnet set abstrction layer with multiscale grouping with rigious rotation invariant
 
@@ -154,9 +152,7 @@ class PointnetSAModuleMSGRRI(_PointnetSAModuleBase):
             )
             mlp_spec = mlps[i]
 
-
             self.mlps.append(pt_utils.SharedMLP(mlp_spec, bn=bn))
-
 
 
 class PointnetSAModule(PointnetSAModuleMSG):
@@ -177,7 +173,7 @@ class PointnetSAModule(PointnetSAModuleMSG):
     """
 
     def __init__(
-        self, mlp, npoint=None, radius=None, nsample=None, bn=True, use_xyz=True
+            self, mlp, npoint=None, radius=None, nsample=None, bn=True, use_xyz=True
     ):
         # type: (PointnetSAModule, List[int], int, float, int, bool, bool) -> None
         super(PointnetSAModule, self).__init__(
@@ -216,7 +212,7 @@ class PointnetFPModule(nn.Module):
         known : torch.Tensor
             (B, m, 3) tensor of the xyz positions of the known features
         unknow_feats : torch.Tensor
-            (B, C1, n) tensor of the features to be propigated to
+            (B, C1, n) tensor of the features to be propagated to
         known_feats : torch.Tensor
             (B, C2, m) tensor of features to be propigated
 
@@ -255,7 +251,6 @@ class PointnetFPModule(nn.Module):
 
 if __name__ == "__main__":
     from torch.autograd import Variable
-
     torch.manual_seed(1)
     torch.cuda.manual_seed_all(1)
     xyz = Variable(torch.randn(2, 9, 3).cuda(), requires_grad=True)

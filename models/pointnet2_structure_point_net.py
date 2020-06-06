@@ -22,7 +22,8 @@ class ComputeLoss3d(nn.Module):
         self.consistent_loss = None
         self.cd_loss = None
 
-    def forward(self, gt_points, structure_points, transed_gt_points=None, transed_structure_points=None, trans_func_list=None):
+    def forward(self, gt_points, structure_points, transed_gt_points=None, transed_structure_points=None,
+                trans_func_list=None):
 
         gt_points = gt_points.cuda()
         structure_points = structure_points.cuda()
@@ -39,8 +40,9 @@ class ComputeLoss3d(nn.Module):
             transed_structure_points = transed_structure_points.cuda()
             transed_gt_points = transed_gt_points.cuda()
             trans_num = transed_structure_points.shape[0]
-            self.cd_loss = self.cd_loss + self.cd_loss_fun(transed_structure_points.view(trans_num * batch_size, stpts_num, dim),
-                                                                             transed_gt_points.view(trans_num * batch_size, pts_num, dim))
+            self.cd_loss = self.cd_loss + self.cd_loss_fun(
+                transed_structure_points.view(trans_num * batch_size, stpts_num, dim),
+                transed_gt_points.view(trans_num * batch_size, pts_num, dim))
             self.consistent_loss = None
             for i in range(0, trans_num):
                 tmp_structure_points = trans_func_list[i](structure_points)
@@ -52,7 +54,6 @@ class ComputeLoss3d(nn.Module):
                 else:
                     self.consistent_loss = self.consistent_loss + tmp_consistent_loss
             self.consistent_loss = self.consistent_loss / trans_num * 1000
-
 
         self.cd_loss = self.cd_loss / (trans_num + 1)
 
@@ -67,6 +68,27 @@ class ComputeLoss3d(nn.Module):
 
     def get_consistent_loss(self):
         return self.consistent_loss
+
+
+class IntegrationLayer(nn.Module):
+    def __init__(self, in_channels, out_channels, out=False, kernel_size=1, dropout=0.2):
+        super().__init__()
+        self.out = out
+        self.dropout_conv_bn_layer = nn.Sequential(
+            nn.Dropout(dropout),
+            nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=kernel_size),
+            nn.BatchNorm1d(num_features=out_channels),
+        )
+        self.relu = nn.ReLU()
+        self.softmax = nn.Softmax(dim=2)
+
+    def forward(self, x):
+        x = self.dropout_conv_bn_layer(x)
+        if self.out:
+            x = self.relu(x)
+        else:
+            x = self.softmax(x)
+        return x
 
 
 class Pointnet2StructurePointNet(nn.Module):
@@ -110,6 +132,8 @@ class Pointnet2StructurePointNet(nn.Module):
 
         conv1d_stpts_prob_modules = []
         if num_structure_points <= 128 + 256 + 256:
+            # conv1d_stpts_prob_modules.append(
+            #     IntegrationLayer(in_channels=128 + 256 + 256, out_channels=512))
             conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
             conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=128 + 256 + 256, out_channels=512, kernel_size=1))
             conv1d_stpts_prob_modules.append(nn.BatchNorm1d(512))
@@ -117,18 +141,25 @@ class Pointnet2StructurePointNet(nn.Module):
             in_channels = 512
             while in_channels >= self.num_structure_points * 2:
                 out_channels = int(in_channels / 2)
+                # conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, out_channels))
                 conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-                conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
+                conv1d_stpts_prob_modules.append(
+                    nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
                 conv1d_stpts_prob_modules.append(nn.BatchNorm1d(out_channels))
                 conv1d_stpts_prob_modules.append(nn.ReLU())
                 in_channels = out_channels
 
-            conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-            conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
-
-            conv1d_stpts_prob_modules.append(nn.BatchNorm1d(self.num_structure_points))
-            conv1d_stpts_prob_modules.append(nn.Softmax(dim=2))
+            conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, self.num_structure_points, out=True))
+            # conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
+            # conv1d_stpts_prob_modules.append(
+            #     nn.Conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
+            #
+            # conv1d_stpts_prob_modules.append(nn.BatchNorm1d(self.num_structure_points))
+            # conv1d_stpts_prob_modules.append(nn.Softmax(dim=2))
         else:
+
+            # conv1d_stpts_prob_modules.append(
+            #     IntegrationLayer(in_channels=128 + 256 + 256, out_channels=1024, kernel_size=1))
             conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
             conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=128 + 256 + 256, out_channels=1024, kernel_size=1))
             conv1d_stpts_prob_modules.append(nn.BatchNorm1d(1024))
@@ -137,22 +168,26 @@ class Pointnet2StructurePointNet(nn.Module):
             in_channels = 1024
             while in_channels <= self.num_structure_points / 2:
                 out_channels = int(in_channels * 2)
+                # conv1d_stpts_prob_modules.append(
+                #     IntegrationLayer(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
                 conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
                 conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=in_channels, out_channels=out_channels, kernel_size=1))
                 conv1d_stpts_prob_modules.append(nn.BatchNorm1d(out_channels))
                 conv1d_stpts_prob_modules.append(nn.ReLU())
                 in_channels = out_channels
 
-            conv1d_stpts_prob_modules.append(nn.Dropout(0.2))
-            conv1d_stpts_prob_modules.append(nn.Conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
+            # conv1d_stpts_prob_modules.append(IntegrationLayer(in_channels, self.num_structure_points, True))
+            conv1d_stpts_prob_modules.append(nn.dropout(0.2))
+            conv1d_stpts_prob_modules.append(
+                nn.conv1d(in_channels=in_channels, out_channels=self.num_structure_points, kernel_size=1))
 
-            conv1d_stpts_prob_modules.append(nn.BatchNorm1d(self.num_structure_points))
+            conv1d_stpts_prob_modules.append(nn.batchnorm1d(self.num_structure_points))
             conv1d_stpts_prob_modules.append(nn.Softmax(dim=2))
 
         self.conv1d_stpts_prob = nn.Sequential(*conv1d_stpts_prob_modules)
 
     def _break_up_pc(self, pc):
-        xyz = pc[..., 0:3].contiguous()
+        xyz = pc[..., 0:3].contiguous()  # 取点
         features = pc[..., 3:].transpose(1, 2).contiguous() if pc.size(-1) > 3 else None
         return xyz, features
 
@@ -171,18 +206,17 @@ class Pointnet2StructurePointNet(nn.Module):
         self.stpts_prob_map = self.conv1d_stpts_prob(features)
 
         weighted_xyz = torch.sum(self.stpts_prob_map[:, :, :, None] * xyz[:, None, :, :], dim=2)
-        if return_weighted_feature:
-            weighted_features = torch.sum(self.stpts_prob_map[:, None, :, :] * features[:, :, None, :], dim=3)
 
         if return_weighted_feature:
+            weighted_features = torch.sum(self.stpts_prob_map[:, None, :, :] * features[:, :, None, :], dim=3)
             return weighted_xyz, weighted_features
         else:
 
             return weighted_xyz
 
 
-
-
-
-
-
+if __name__ == "__main__":
+    pointclouds = torch.rand(10, 1000, 3).cuda()
+    model = Pointnet2StructurePointNet(15).cuda()
+    output = model(pointclouds)
+    print(output.shape)

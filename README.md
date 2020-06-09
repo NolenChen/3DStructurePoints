@@ -23,7 +23,7 @@ python setup.py build_ext --inplace
 ## Dataset
 
 The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://drive.google.com/file/d/1MkUcFF4gbfhQLssPNd_MV9afOOar-Wxn/view?usp=sharing).
-The script for preprocessing the testing data will come soon.
+And [here](https://drive.google.com/open?id=1LexLVRwq13FIT-dfIuD1Ii9eBq_tQ0ph)'s the script for preprocessing the testing data.
 
 
 ## Train
@@ -57,8 +57,15 @@ The structure point will be outputed in off format, corresponding structure poin
 Please cite our paper if you find it useful in your research:
 
 ```
-
+@article{chen2020unsupervised,
+  title={Unsupervised Learning of Intrinsic Structural Representation Points},
+  author={Chen, Nenglun and Liu, Lingjie and Cui, Zhiming and Chen, Runnan and Ceylan, Duygu and Tu, Changhe and Wang, Wenping},
+  journal={arXiv preprint arXiv:2003.01661},
+  year={2020}
+}
 ```
+
+If you have any questions, please contact chennenglun@gmail.com
 
 
 

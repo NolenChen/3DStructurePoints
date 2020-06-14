@@ -11,12 +11,11 @@ import ntpath
 import pickle
 
 class bhcp_dataloader(data.Dataset):
-    def __init__(self, data_root, category, transforms=None, is_pts_aligned=False, preload_data=True):
+    def __init__(self, data_root, category, is_pts_aligned=False, preload_data=True):
         super().__init__()
         self.data_path = os.path.join(data_root, category)
         self.sub_dirs = [ntpath.basename(f.path) for f in os.scandir(self.data_path) if f.is_dir()]
         self.data_num = len(self.sub_dirs)
-        self.transforms = transforms
         self.is_pts_aligned = is_pts_aligned
 
         self.meta_data_list = None

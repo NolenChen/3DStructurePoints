@@ -53,18 +53,42 @@ python test_structure_points.py -data_dir ../demo_data/plane -model_fname PATH_T
 The structure point will be outputed in off format, corresponding structure points will have same colors
 
 
+## Shape Correspondence
+Run the following command to train the network to produce 512 structure points:
+```
+cd train
+python train_structure_points.py -data_dir PATH_TO_TRAINING_DATA -num_structure_points 512 -category plane -log_dir PATH_TO_LOG
+```
+Run the following command to test the correspondence between two shapes:
+```
+cd test
+python test_shape_correspondence.py -model_fname PATH_TO_TRAINED_MODEL -num_structure_points 512 -src_shape_fname ../demo_data/shape_corres/src_and_query_pts/plane_src_pts.off -query_pts_fname ../demo_data/shape_corres/src_and_query_pts/plane_query_pts.off  -tgt_shape_fname ../demo_data/shape_corres/tgt_pts/plane_tgt_pts_1.off -out_corres_pts_fname PATH_TO_OUTPUT
+```
+
+To evaluate the correspondence accuracy, you need to first obtain the bhcp benchmark and then do the data preprocessing with the [script](https://drive.google.com/open?id=1LexLVRwq13FIT-dfIuD1Ii9eBq_tQ0ph).
+Then run the following command to evaluate:
+```
+cd evaluate
+python evaluate_corres_accuracy.py -model_fname PATH_TO_TRAINED_MODEL -category chair -num_structure_points 512 -data_dir PATH_TO_THE_EVALUATION_DATA
+```
+
+The pretrained models can be found [here](https://drive.google.com/drive/folders/1UrHN1PYhXfY4X-0ohydyUBecj2t8DGYj?usp=sharing)
+
+
 ## Citation
 Please cite our paper if you find it useful in your research:
 
 ```
-@article{chen2020unsupervised,
+@inproceedings{chen2020unsupervised,
   title={Unsupervised Learning of Intrinsic Structural Representation Points},
   author={Chen, Nenglun and Liu, Lingjie and Cui, Zhiming and Chen, Runnan and Ceylan, Duygu and Tu, Changhe and Wang, Wenping},
-  journal={arXiv preprint arXiv:2003.01661},
+  booktitle={Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition},
+  pages={9121--9130},
   year={2020}
 }
 ```
 
+## Contact
 If you have any questions, please contact chennenglun@gmail.com
 
 

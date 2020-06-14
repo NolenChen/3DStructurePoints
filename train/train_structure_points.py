@@ -11,7 +11,6 @@ import torch
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_sched
 from torch.utils.data import DataLoader
-from torchvision import transforms
 import etw_pytorch_utils as pt_utils
 import os
 import argparse
@@ -19,7 +18,6 @@ import gc
 from models import Pointnet2StructurePointNet
 from models import ComputeLoss3d
 from dataset import bhcp_dataloader
-import dataset.data_utils as d_utils
 from utils.logutils import LogUtils
 import utils.check_points_utils as checkpoint_util
 import utils.point_cloud_utils as point_cloud_utils
@@ -112,15 +110,8 @@ def train(cmd_args):
 
     lr_clip = 1e-5
     bnm_clip = 1e-2
-    trans = transforms.Compose(
-        [
-            d_utils.PointcloudToTensor(),
-            #d_utils.PointcloudRandomPermutation(),
-            d_utils.PointcloudJitter()
-        ]
-    )
 
-    train_set = bhcp_dataloader.bhcp_dataloader(cmd_args.data_dir, cmd_args.category, transforms=trans, is_pts_aligned=False)
+    train_set = bhcp_dataloader.bhcp_dataloader(cmd_args.data_dir, cmd_args.category, is_pts_aligned=False)
     train_loader = DataLoader(
         train_set,
         batch_size=cmd_args.batch_size,
@@ -204,7 +195,7 @@ def parse_args():
     parser.add_argument(
         "-checkpoint_save_step", type=int, default=10, help="Step for saving Checkpoint"
     )
-    parser.add_argument("-batch_size", type=int, default=3, help="Batch size")
+    parser.add_argument("-batch_size", type=int, default=4, help="Batch size")
     parser.add_argument(
         "-checkpoint", type=str, default=None
         , help="Checkpoint to start from"
@@ -222,7 +213,7 @@ def parse_args():
         , help="Number of structure points"
     )
     parser.add_argument(
-        "-category", type=str, default='bike', help="Category of the objects to train"
+        "-category", type=str, default='chair', help="Category of the objects to train"
     )
 
     parser.add_argument(
@@ -234,7 +225,8 @@ def parse_args():
     parser.add_argument(
         "-log_dir", type=str, default="", help="Root of the log"
     )
-    return parser.parse_args()
+    args = parser.parse_args()
+    return args
 
 
 if __name__ == "__main__":

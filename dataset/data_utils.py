@@ -36,11 +36,9 @@ def angle_axis_tensor(angle, axis):
     cross_prod_mat = torch.Tensor([[0.0, -u[2], u[1]],
                                 [u[2], 0.0, -u[0]],
                                 [-u[1], u[0], 0.0]]).type(torch.FloatTensor)
-
     R = cosval * torch.eye(3).type(torch.FloatTensor) + sinval * cross_prod_mat + (1.0 - cosval) * torch.ger(u, u)
-
-
     return R
+
 
 def angle_axis(angle, axis):
     # type: (float, np.ndarray) -> float
@@ -167,10 +165,9 @@ class PointcloudNormalize(object):
         points = points / max_radius * self.max_size / 2.0
         return points
 
+
 class PointcloudRandomPermutation(object):
-
     def __call__(self, points):
-
         num = points.shape[0]
         idxs = torch.randperm(num).type(torch.LongTensor)
         points = torch.index_select(points, 0, idxs).clone()
@@ -206,11 +203,6 @@ class PointcloudRandomInputDropout(object):
             pc[drop_idx] = pc[0]  # set to the first point
 
         return torch.from_numpy(pc).float()
-
-
-
-
-
 
 
 class PointcloudTranslate(object):
@@ -265,7 +257,6 @@ class PointcloudRotate(object):
         tpoints = torch.matmul(points, rotation_matrix_t)
 
         return tpoints
-
 
 
 def GenPointcloudRandomTransformFunction(max_rot_angle=2*np.pi):
@@ -323,12 +314,8 @@ class PointcloudRotateFuns(object):
             tmp_rot = self.rot_mats.cuda()
         else:
             tmp_rot = self.rot_mats
-
-
         transed_poitns = torch.transpose(torch.matmul(tmp_rot, torch.transpose(points, 1, 2)), 1, 2)
         return transed_poitns
-
-
 
 
 def AddPCATransformsToBatchPoints(points, num_of_trans):
@@ -344,10 +331,9 @@ def AddPCATransformsToBatchPoints(points, num_of_trans):
         trans_points = None
         for ti in range(num_of_trans):
             tmp_idx = np.array([0, 1, 2])
-            np.random.shuffle(tmp_idx)
             pca_axis = pca_axis_raw[tmp_idx, :]
             tmp_sign = np.random.randint(2, size=2)
-            tmp_sign[tmp_sign==0] = -1
+            tmp_sign[tmp_sign == 0] = -1
             pca_axis[0, :] = pca_axis[0, :] * tmp_sign[0]
             pca_axis[1, :] = pca_axis[1, :] * tmp_sign[1]
             pca_axis[2, :] = np.cross(pca_axis[0, :], pca_axis[1, :])
@@ -381,7 +367,6 @@ def AddPCATransformsToBatchPoints(points, num_of_trans):
     for ti in range(num_of_trans):
         trans_func = PointcloudRotateFuns(rot_mats_all[ti, :, :, :])
         transfunc_list.append(trans_func)
-
 
     return trans_points_all, rot_mats_all, transfunc_list
 

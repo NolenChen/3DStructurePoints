@@ -11,7 +11,7 @@ import torch
 import torch.optim as optim
 import torch.optim.lr_scheduler as lr_sched
 from torch.utils.data import DataLoader
-import etw_pytorch_utils as pt_utils
+import pointnet2.utils.etw_pytorch_utils as pt_utils
 import os
 import argparse
 import gc

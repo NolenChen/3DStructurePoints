@@ -7,7 +7,7 @@ from __future__ import (
 )
 import torch
 import torch.nn as nn
-import etw_pytorch_utils as pt_utils
+import pointnet2.utils.etw_pytorch_utils as pt_utils
 from pointnet2.utils.pointnet2_modules import PointnetSAModuleMSG
 from models import chamfer_distance
 

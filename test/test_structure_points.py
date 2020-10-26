@@ -16,6 +16,7 @@ import utils.point_cloud_utils as point_cloud_utils
 import numpy as np
 import random
 import glob
+import dataset.data_utils as d_utils
 
 def create_color_list(num):
     colors = np.ndarray(shape=(num, 3))
@@ -33,6 +34,7 @@ def main(args):
     model = Pointnet2StructurePointNet(num_structure_points=args.num_structure_points, input_channels=0, use_xyz=True)
     model.cuda()
     checkpoint_util.load_checkpoint(model_3d=model, filename=args.model_fname)
+    model.eval()
 
     if os.path.exists(args.output_dir) is False:
         os.makedirs(args.output_dir)
@@ -45,7 +47,17 @@ def main(args):
         pts = point_cloud_utils.read_points_off(os.path.join(args.data_dir,fname))
 
         batch_pts = torch.from_numpy(pts)[None, :, :].cuda()
+        
+        if args.test_on_aligned is False:
+            batch_pts, rot_mats, _ = d_utils.AddPCATransformsToBatchPoints(batch_pts, num_of_trans=1)
+            batch_pts = batch_pts.squeeze(dim=0).contiguous()
+            rot_mats = rot_mats.squeeze(dim=0)
+            
         structure_points = model(batch_pts)
+        
+        if args.test_on_aligned is False:
+            inv_rot_mats = rot_mats.transpose(1, 2)
+            structure_points = torch.matmul(inv_rot_mats, structure_points.transpose(1, 2)).transpose(1, 2)
 
         structure_points = structure_points[0].cpu().detach().numpy()
         outfname = os.path.join(args.output_dir, fname[:-4] + '_stpts.off')
@@ -72,7 +84,14 @@ if __name__ == "__main__":
     parser.add_argument(
         "-data_dir", type=str, default='', help="path to testing data"
     )
+    parser.add_argument(
+        "-test_on_aligned", type=str, default='True', help="whether the testing shape is aligned or not. If set to False, the network should be trained with num_of_transform > 0 to use PCA data aug"
+    )
     args = parser.parse_args()
+    if args.test_on_aligned.lower() == 'true':
+        args.test_on_aligned = True
+    else:
+        args.test_on_aligned = False
     main(args)
 
 

@@ -75,6 +75,20 @@ python evaluate_corres_accuracy.py -model_fname PATH_TO_TRAINED_MODEL -category 
 The pretrained models can be found [here](https://drive.google.com/drive/folders/1UrHN1PYhXfY4X-0ohydyUBecj2t8DGYj?usp=sharing)
 
 
+## Label Transfer
+Download the preprocessed data, pretrained models and training logs [here](https://drive.google.com/drive/folders/18mmm5ItdKPahGLdLgZQNjwk466rbAYbs?usp=sharing)
+
+For training, run the following command:
+```
+cd train
+python train_structure_points_for_la bel_transfer.py 
+```
+Run the following command to evaluate:
+```
+cd evaluate
+python evaluate_label_transfer_accuracy.py
+```
+
 ## Citation
 Please cite our paper if you find it useful in your research:
 

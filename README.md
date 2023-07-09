@@ -22,7 +22,7 @@ python setup.py build_ext --inplace
 
 ## Dataset
 
-The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://drive.google.com/file/d/1MkUcFF4gbfhQLssPNd_MV9afOOar-Wxn/view?usp=sharing).
+The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://drive.google.com/file/d/1jvqqeh10J1RIRFbpTEPAJu5loJBezpjQ/view?usp=sharing).
 And [here](https://drive.google.com/open?id=1LexLVRwq13FIT-dfIuD1Ii9eBq_tQ0ph)'s the script for preprocessing the testing data.
 
 

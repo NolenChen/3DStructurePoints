@@ -22,8 +22,8 @@ python setup.py build_ext --inplace
 
 ## Dataset
 
-The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://drive.google.com/file/d/1jvqqeh10J1RIRFbpTEPAJu5loJBezpjQ/view?usp=sharing).
-And [here](https://drive.google.com/open?id=1LexLVRwq13FIT-dfIuD1Ii9eBq_tQ0ph)'s the script for preprocessing the testing data.
+The training and testing data for 3D semantic correspondence is provided by [LMVCNN](https://people.cs.umass.edu/~hbhuang/local_mvcnn/) and [bhcp](http://www.vovakim.com/projects/CorrsTmplt/doc_data.html) respectively, and you can download the preprocessed training data [here](https://pan.baidu.com/s/1AdKPCw-HlUCQPdWN-YSItg?pwd=dtip).
+And [here](https://pan.baidu.com/s/1uji7snxiomNhdJiiTo-EdA?pwd=6zar)'s the script for preprocessing the testing data.
 
 
 ## Train
@@ -65,18 +65,18 @@ cd test
 python test_shape_correspondence.py -model_fname PATH_TO_TRAINED_MODEL -num_structure_points 512 -src_shape_fname ../demo_data/shape_corres/src_and_query_pts/plane_src_pts.off -query_pts_fname ../demo_data/shape_corres/src_and_query_pts/plane_query_pts.off  -tgt_shape_fname ../demo_data/shape_corres/tgt_pts/plane_tgt_pts_1.off -out_corres_pts_fname PATH_TO_OUTPUT
 ```
 
-To evaluate the correspondence accuracy, you need to first obtain the bhcp benchmark and then do the data preprocessing with the [script](https://drive.google.com/open?id=1LexLVRwq13FIT-dfIuD1Ii9eBq_tQ0ph).
+To evaluate the correspondence accuracy, you need to first obtain the bhcp benchmark and then do the data preprocessing with the [script](https://pan.baidu.com/s/1uji7snxiomNhdJiiTo-EdA?pwd=6zar).
 Then run the following command to evaluate:
 ```
 cd evaluate
 python evaluate_corres_accuracy.py -model_fname PATH_TO_TRAINED_MODEL -category chair -num_structure_points 512 -data_dir PATH_TO_THE_EVALUATION_DATA
 ```
 
-The pretrained models can be found [here](https://drive.google.com/drive/folders/1UrHN1PYhXfY4X-0ohydyUBecj2t8DGYj?usp=sharing)
+The pretrained models can be found [here](https://pan.baidu.com/s/1Dw0dox1jdnuWYITcr_qUNw?pwd=ua3t)
 
 
 ## Label Transfer
-Download the preprocessed data, pretrained models and training logs [here](https://drive.google.com/drive/folders/18mmm5ItdKPahGLdLgZQNjwk466rbAYbs?usp=sharing)
+Download the preprocessed data, pretrained models and training logs [here](https://pan.baidu.com/s/1PqFg-XyiMaoHDe7ajaNAxg?pwd=it1q)
 
 For training, run the following command:
 ```
